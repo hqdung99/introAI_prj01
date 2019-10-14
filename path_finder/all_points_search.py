@@ -19,8 +19,7 @@ class AllPointSearch():
         ## path_lookup[start][goal] = ['A', 'B', 'C', ...]
         self.path_lookup = {}
         self.visited = np.zeros((len(list_point), len(list_point)))
-#         self.edges = []
-#         self._init_edges()
+
     
     def _find_shortest_path(self, start_point, end_point, matrix):
         shortest_path_finder = BFS(start_point, end_point)
@@ -64,12 +63,13 @@ class AllPointSearch():
     def _lookup_path_of_point(self, start_point):
         return heapq.heappop(self.path_lookup[start_point])
     
-    def show_path_lookup(self):
-        print(f'path_lookup type: {type(self.path_lookup)}')
-        print(f'path_lookup key: {list(self.path_lookup.keys())}')
-        print(f'path_lookup: {self.path_lookup}')
-    
+
     def search(self, matrix):
+        
+        '''
+            start searching
+            
+        '''
         self._init_path_lookup(matrix)
         #self.show_path_lookup()
         #pretty(self.path_lookup, indent=2)
