@@ -9,3 +9,4 @@ from .dfs_path import DFS
 from .utils import manhattan
 from .astar_path import AStarSearch
 from .greedy_search import GreedySearch
+from .all_points_search import AllPointSearch

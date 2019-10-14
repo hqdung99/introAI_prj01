@@ -76,14 +76,14 @@ class AllPointSearch():
             
         '''
 
-        matrix[goal] += 1 #mark matrix[goal] != 0: prohibit searching some ways that go through goal point
-        for i, start_point in enumerate(list_point):
+        matrix[self.goal] += 1 #mark matrix[goal] != 0: prohibit searching some ways that go through goal point
+        for i, start_point in enumerate(self.list_point):
             shortest_path = self._find_shortest_path(self.start, start_point, matrix)
             self._update_path_lookup(self.start, start_point, shortest_path)
             
             ## find shortest path between each pair of points
-            for j in range(i+1, len(list_point)):
-                end_point = list_point[j]
+            for j in range(i+1, len(self.list_point)):
+                end_point = self.list_point[j]
                 if j == i or self.visited[i, j] == 1 or self.visited[j, i] == 1:
                     continue
                 
@@ -98,7 +98,7 @@ class AllPointSearch():
                 self.visited[i, j] = 1
                 self.visited[j, i] = 1
         
-        matrix[goal] -= 1 
+        matrix[self.goal] -= 1 
         
     # ----------------------------------------------------------------------------------
     # SEARCH ORDER OF POINTS TO REACH
@@ -128,7 +128,7 @@ class AllPointSearch():
         total_distance = 0
         
         start_point = self.start
-        num_of_list_point = len(list_point)
+        num_of_list_point = len(self.list_point)
         
         while num_of_list_point > 0:
             distance, next_point, path = self._lookup_path_of_point(start_point)
@@ -144,10 +144,10 @@ class AllPointSearch():
 
         
         ## find shortest path from the final point to goal
-        shortest_path_to_goal = self._find_shortest_path(reaching_order[-1], goal, matrix)
+        shortest_path_to_goal = self._find_shortest_path(reaching_order[-1], self.goal, matrix)
 
         total_distance += len(shortest_path_to_goal)
-        reaching_order.append(goal)
+        reaching_order.append(self.goal)
         final_path.extend(shortest_path_to_goal)
         
         return final_path, reaching_order, total_distance
