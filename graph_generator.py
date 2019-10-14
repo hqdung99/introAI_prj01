@@ -57,7 +57,7 @@ def read_input_file(fpath:str, verbose:bool=False, fill:bool=False):
         graph: (Numpy array) Matrix to represent graph value
         start: (Tuple of int) Start point
         goal: (Tuple of int) Goal point
-
+        
 
     """
     f = open(fpath)

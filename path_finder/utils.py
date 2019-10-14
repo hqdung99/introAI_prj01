@@ -35,3 +35,5 @@ def manhattan(state, agent_coor, goal, move, path):
             return NEGATIVE_INF
 
     return np.sum(np.abs(goal - new_position))
+
+
