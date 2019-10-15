@@ -1,10 +1,11 @@
 from PIL import Image, ImageDraw
 import numpy as np
 from matplotlib import pyplot as plt
-
+import random
 
 class GraphGenerator(object):
-    def __init__(self, size: tuple, mode:str="L", fill:bool=False) -> None:
+    def __init__(self, size: tuple, mode:str="L", fill:bool=False,
+        list_move=[(0, 1), (0, -1), (1, 0), (-1, 0)]) -> None:
         '''
 
         size: tuple of two interger.
@@ -17,6 +18,7 @@ class GraphGenerator(object):
         self.__draw = ImageDraw.ImageDraw(self.__img)
         self.polygon_list = []
         self.fill = fill
+        self.list_move = list_move
 
     def add_polygon(self, polygon: list, 
                     polygon_ind: int = None) -> None:
@@ -40,6 +42,22 @@ class GraphGenerator(object):
     def generate_graph(self):
         return np.array(self.__img, dtype=int)
 
+    def update(self, agent_coor, goal):
+        prev_state = self.generate_graph()
+        ind = random.randint(0, len(self.polygon_list) - 1)
+        old_polygon = self.polygon_list[ind]
+        
+        self.__draw.polygon(old_polygon, 0, 0)
+
+        pol_move = random.choice(self.list_move)
+        new_polygon = []
+        for point in old_polygon:
+            point = np.array(point) + pol_move
+            new_polygon.append(tuple(point))
+
+        print(f"Polygon {ind} move {pol_move}")
+        self.__draw.polygon(new_polygon, outline=ind + 1)
+        self.polygon_list[ind] = new_polygon
 
     def plot_graph(self, cmap='tab20c'):
         plt.imshow(self.__img, cmap=cmap)
@@ -47,7 +65,7 @@ class GraphGenerator(object):
 
 
 
-def read_input_file(fpath:str, verbose:bool=False, fill:bool=False):
+def read_input_file(fpath:str, verbose:bool=False, fill:bool=False, return_graph_gen=False):
     """ Read input file with TA Format
     Input:
         fpath: Path to input txt file
@@ -93,6 +111,10 @@ def read_input_file(fpath:str, verbose:bool=False, fill:bool=False):
     if verbose:
         print("Done load input")
         generator.plot_graph()
+    
+    if return_graph_gen:
+        return generator, (xStart, yStart), (xGoal, yGoal) 
+
 
     return generator.generate_graph(), (xStart, yStart), (xGoal, yGoal) 
 

@@ -28,10 +28,10 @@ def manhattan(state, agent_coor, goal, move, path):
     is_invalid = check_position(new_position, state)
     
     if is_invalid:
-        return NEGATIVE_INF
+        return POSITIVE_INF
     
     for p in path:
         if (new_position == p).all():
-            return NEGATIVE_INF
+            return POSITIVE_INF
 
     return np.sum(np.abs(goal - new_position))
