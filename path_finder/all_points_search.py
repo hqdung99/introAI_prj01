@@ -4,6 +4,7 @@ import random
 from path_finder import BasePathFinder
 from path_finder import BFS
 import json
+import itertools
 
 REACHED_POINT_FLAG = 88
 
@@ -151,3 +152,67 @@ class AllPointSearch():
         final_path.extend(shortest_path_to_goal)
         
         return final_path, reaching_order, total_distance
+
+# ----------------------- Dung ---------------------------------------------
+
+
+    def search_shortest_with_all_possible_way(self, matrix):
+
+        arrDistance = self.caculateArrayDistance(matrix);
+        
+        numberPoint = 2 + len(self.list_point);
+        arr = self.permutationPath(numberPoint);
+        
+        distanceStartToPoint = [];
+
+        for i in range(len(arr)):
+            path = arr[i];
+            dis = 0;
+            for j in range(len(path) - 1):
+                dis += arrDistance[ arr[i][j] ][arr[i][j + 1]];
+
+            distanceStartToPoint.append(dis);
+
+        indexMin = distanceStartToPoint.index(min(distanceStartToPoint));
+        return arr[indexMin];
+        
+        
+    def permutationPath(self, numberPoint):
+        listA = list(range(1, numberPoint - 1));
+        perm = itertools.permutations(listA);
+        number = 0;
+        arr = [];
+
+        for i in list(perm):
+            temp = [];
+            temp.append(0);
+            temp += list(i);
+            temp.append(numberPoint - 1);
+            arr.append(temp);
+
+        return arr;
+
+    def caculateArrayDistance(self, matrix):
+        """
+        Distance sẽ là một mảng 2 chiều, chứa khoảng cách giữa tất cả các điểm với nhau.
+        """
+        arrDistance = []
+        self._init_path_lookup(matrix);
+        temp = [];
+        temp.append(self.start);
+        temp += self.list_point;
+        temp.append(self.goal);
+        # print(temp);
+        
+        for i in range(len(temp)):
+            arrDistance.append([]);
+            for j in range(len(temp)):
+                arrDistance[i] += [0];
+        # print(arrDistance);
+        for i in range(0, len(temp) - 1):                      # chay tu 0     1   2
+            for j in range(i + 1, len(temp)): #       1 - 6  2-6 3-6
+                path_finder = BFS(temp[i], temp[j]);
+                path = path_finder.search(matrix);
+                arrDistance[i][j] = arrDistance[j][i] = len(path) - 2;
+        # print(arrDistance);
+        return arrDistance;
