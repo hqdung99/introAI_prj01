@@ -134,9 +134,8 @@ class AllPointSearch():
             start searching: at each point, just choose the closest one
 
             output:
-                - final_path: final path from start_point to goal_point. dtype: list of points
-                - reaching_order: ordinal of reached point in list_point. dtype: list of points
                 - total_distance: total distance of final_path. dtype: int
+                - final_path: final path from start_point to goal_point. dtype: list of points
         '''
         self._init_path_lookup(matrix)
         
@@ -207,8 +206,6 @@ class AllPointSearch():
         
         mostOptimalPath = arr[indexMin]
         for point_ind in range(len(mostOptimalPath)-1):
-            print(all_point_coor[mostOptimalPath[point_ind]])
-            point1 = 
             final_path += self.path_lookup[all_point_coor[mostOptimalPath[point_ind]]][all_point_coor[mostOptimalPath[point_ind+1]]][1]
         
         #return total cost to reach the mostOptimalPath, and list of points to reach the most optimal cost
