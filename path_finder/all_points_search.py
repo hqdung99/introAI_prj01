@@ -4,6 +4,7 @@ import random
 from path_finder import BasePathFinder
 from path_finder import BFS
 import json
+import itertools
 
 REACHED_POINT_FLAG = 88
 
@@ -29,7 +30,7 @@ class AllPointSearch():
         self.use_heapq = use_heapq
         
         ## this att is used for find path between two points:
-        ## path_lookup[start][goal] = ['A', 'B', 'C', ...]
+        ## path_lookup[start][goal] = (distance, ['A', 'B', 'C', ...])
         self.path_lookup = {}
         self.visited = np.zeros((len(list_point), len(list_point)))
     
@@ -66,30 +67,46 @@ class AllPointSearch():
         else:
             self.path_lookup[head][tail] = (dist, path)
 
+    ### helper function 3
+    #def _calculate_and_update_shortet_root(self, start_point, end_point, matrix):
+        
+
     ### main function
     def _init_path_lookup(self, matrix):
         '''
             Initiate lookup dictionary
             *path_lookup is dictionary:
                 key: point1
-                value: list of tupple (distance_between_point1_point2, point1, path_from_point1_to_point2)
-            
+                value: dictionary{ 
+                    key: point2, 
+                    values: tuple(distance: between point1 & point2, path: list of points that lead point1 to point2
+                    }
         '''
-
         matrix[self.goal] += 1 #mark matrix[goal] != 0: prohibit searching some ways that go through goal point
+        
+        # start init path_lookup
         for i, start_point in enumerate(self.list_point):
             shortest_path = self._find_shortest_path(self.start, start_point, matrix)
             self._update_path_lookup(self.start, start_point, shortest_path)
             
+            ## 
+            if self.use_heapq == False:
+                matrix[self.goal] -= 1
+                shortest_path = self._find_shortest_path(start_point, self.goal, matrix)
+                self._update_path_lookup(start_point, self.goal, shortest_path)
+                matrix[self.goal] += 1
+
             ## find shortest path between each pair of points
             for j in range(i+1, len(self.list_point)):
                 end_point = self.list_point[j]
                 if j == i or self.visited[i, j] == 1 or self.visited[j, i] == 1:
                     continue
                 
+                ## update path_lookup[start][end]
                 shortest_path = self._find_shortest_path(start_point, end_point, matrix)
                 self._update_path_lookup(start_point, end_point, shortest_path)
 
+                ## update path_lookup[end][start]
                 reverse_shortest_path = shortest_path.copy()
                 if shortest_path != False:
                     reverse_shortest_path.reverse()    
@@ -97,8 +114,8 @@ class AllPointSearch():
                                 
                 self.visited[i, j] = 1
                 self.visited[j, i] = 1
-        
-        matrix[self.goal] -= 1 
+
+        matrix[self.goal] -= 1
         
     # ----------------------------------------------------------------------------------
     # SEARCH ORDER OF POINTS TO REACH
@@ -145,9 +162,70 @@ class AllPointSearch():
         
         ## find shortest path from the final point to goal
         shortest_path_to_goal = self._find_shortest_path(reaching_order[-1], self.goal, matrix)
-
+        
         total_distance += len(shortest_path_to_goal)
         reaching_order.append(self.goal)
         final_path.extend(shortest_path_to_goal)
         
-        return final_path, reaching_order, total_distance
+        #return total cost, and list of points to reach this cost
+        return total_distance, final_path
+
+    
+
+# ----------------------- Dung ---------------------------------------------
+    def _get_path_info_between_two_points(self, start, end):
+        try:
+            return self.path_lookup[start][end]
+        except Exception as e:
+            print(f'get path fail with error: {str(e)}')
+            
+    def search_shortest_with_all_possible_way(self, matrix):
+        
+        self._init_path_lookup(matrix)
+        all_point_coor = [self.start] + self.list_point + [self.goal]
+        
+        numberPoint = 2 + len(self.list_point);
+        arr = self.permutationPath(numberPoint);
+        
+        distanceStartToPoint = [];
+        detailRoad = []
+
+        for i in range(len(arr)):
+            path = arr[i];
+            dis = 0;
+            subRoad = []
+            for j in range(len(path) - 1):
+                dis_info = self._get_path_info_between_two_points(all_point_coor[arr[i][j]], all_point_coor[arr[i][j+1]])
+                dis += dis_info[0]
+                
+            distanceStartToPoint.append(dis);
+
+        indexMin = distanceStartToPoint.index(min(distanceStartToPoint));
+
+        ## traceback
+        final_path = []
+        
+        mostOptimalPath = arr[indexMin]
+        for point_ind in range(len(mostOptimalPath)-1):
+            print(all_point_coor[mostOptimalPath[point_ind]])
+            point1 = 
+            final_path += self.path_lookup[all_point_coor[mostOptimalPath[point_ind]]][all_point_coor[mostOptimalPath[point_ind+1]]][1]
+        
+        #return total cost to reach the mostOptimalPath, and list of points to reach the most optimal cost
+        return distanceStartToPoint[indexMin], final_path
+        
+        
+    def permutationPath(self, numberPoint):
+        listA = list(range(1, numberPoint - 1));
+        perm = itertools.permutations(listA);
+        number = 0;
+        arr = [];
+
+        for i in list(perm):
+            temp = [];
+            temp.append(0);
+            temp += list(i);
+            temp.append(numberPoint - 1);
+            arr.append(temp);
+
+        return arr;
