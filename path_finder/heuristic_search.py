@@ -44,7 +44,7 @@ class HeuristicSearch(object):
         else:
             self.invalid_move = NEGATIVE_INF
 
-    def search(self, graph):
+    def search(self, graph, visualize=False):
         # init variable
         agent_coor = self.start
         next_move_point = np.zeros(len(self.list_move), dtype=np.float)
@@ -78,11 +78,20 @@ class HeuristicSearch(object):
                         graph=graph)
             path.append(agent_coor)
             print(agent_coor, best_score)
+            
+            if visualize:
+                matrix = graph.generate_graph()
+                matrix[agent_coor[0], agent_coor[1]] = 10
+                matrix[self.goal[0], self.goal[1]] = 11
+                plt.imshow(matrix)
+                plt.show()
+        
         return path            
 
     def apply_move(self, agent_coor, move, **kwargs):
         # For later implementation of level 4 problem
         graph = kwargs['graph']
+        print("Updating graph")
         graph.update(agent_coor, self.goal)
         return agent_coor + move
 
