@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
 
 
-    path = path_finder.search(graph_gen)
+    path = path_finder.search(graph_gen, True)
     
     if path:
         print("Found path")

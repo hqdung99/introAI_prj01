@@ -92,7 +92,7 @@ class HeuristicSearch(object):
         # For later implementation of level 4 problem
         graph = kwargs['graph']
         print("Updating graph")
-        graph.update(agent_coor, self.goal)
+        graph.update(agent_coor + move, self.goal)
         return agent_coor + move
 
 

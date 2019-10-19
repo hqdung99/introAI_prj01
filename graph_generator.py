@@ -58,23 +58,30 @@ class GraphGenerator(object):
             for point in old_polygon:
                 point = np.array(point) + pol_move
                 new_polygon.append(tuple(point))
+            print(new_polygon, old_polygon)
 
             new_polygon_obj = Polygon(new_polygon)
-            agent_point = Point(agent_coor)
+            agent_point = Point(agent_coor[1], agent_coor[0])
             
-            if new_polygon_obj.contains(agent_point):
+            flag = True
+
+            if new_polygon_obj.touches(agent_point) or new_polygon_obj.overlaps(agent_point) or new_polygon_obj.crosses(agent_point):
                 count -= 1
-            
-            for i, p in enumerate(self.polygon_objs):
-                if i != ind and new_polygon_obj.intersects(p):
-                    count -= 1
-                    break
-            move_success = True
+                flag = False
+            else:
+                for i, p in enumerate(self.polygon_objs):
+                    if i != ind and (new_polygon_obj.overlaps(p) or new_polygon_obj.touches(p) or new_polygon_obj.intersects(agent_point)):
+                        count -= 1
+                        flag = False
+                        break
+
+            if flag:
+                move_success = True
 
         if not move_success:
             return
         
-        self.__draw.polygon(old_polygon, 0, 0)
+        self.__draw.polygon(old_polygon, outline=0)
 
 
         print(f"Polygon {ind} move {pol_move}")
