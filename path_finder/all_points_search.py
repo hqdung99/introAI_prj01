@@ -172,6 +172,16 @@ class AllPointSearch():
     
 
 # ----------------------- Dung ---------------------------------------------
+    def _get_full_path_from_reaching_order(self, reaching_order):
+        final_dist = 0
+        final_path = []
+        for i in range(len(reaching_order)-1):
+            dist = self._get_path_info_between_two_points(reaching_order[i], reaching_order[i+1])
+            final_dist += dist[0]
+            final_path.extend(dist[1])
+            
+        return final_path, final_dist                                      
+        
     def _get_path_info_between_two_points(self, start, end):
         try:
             return self.path_lookup[start][end]
@@ -226,3 +236,80 @@ class AllPointSearch():
             arr.append(temp);
 
         return arr;
+    
+# ---------------------------------------------------------------------------------------
+    def find_shortest_hamilton_path(self, matrix):
+        self._init_path_lookup(matrix) 
+        
+        n = len(self.list_point)
+        
+        dp = []
+        INF = 1e9
+        
+        for i in range(1<<n):
+            dp.append([])
+            for j in range(n):
+                dp[i].append(INF)
+        
+        point_id = range(n)
+        
+        #init adj_matrix
+        #adj_matrix[a][b]: distance between a and b
+        adj_matrix=np.zeros((n, n))
+        for i in range(n):
+            dp[(1<<i)][i] = self._get_path_info_between_two_points(self.start, self.list_point[i])[0]
+            for j in range(n):
+                if i == j:
+                    adj_matrix[i, j] = 0
+                else:
+                    dist_i_j = self._get_path_info_between_two_points(self.list_point[i], self.list_point[j])[0]
+                    adj_matrix[i, j] = dist_i_j
+        
+        
+        # find min_path
+        for i in range(1<<n):
+            for j in range(n):
+                if (i & (1<<j)):
+                    for k in range(n):
+                        if (i & (1<<k)) and j!=k and adj_matrix[k, j] > 0:
+                            dp[i][j] = min(dp[i][j], dp[i^(1<<j)][k] + adj_matrix[k, j])
+        
+        #find min last point
+        min_point_id = -1
+        min_cost = INF
+        for i in range(n):
+            dist = dp[(1<<n) -1][i] + self._get_path_info_between_two_points(self.list_point[i], self.goal)[0]
+            if min_cost > dist:
+                min_cost = dist
+                min_point_id = i
+        
+        print(self.list_point[min_point_id])
+        #----------------------------------------------------
+        ## trace back for the path that end at min_point_id
+
+        list_trace_id = [min_point_id]
+        path = (1<<n) - 1
+        res_visit = []
+        for i in range(n):
+            if (i!=min_point_id):
+                res_visit.append(i)
+
+        cur_id = min_point_id
+        
+        while(len(res_visit)):
+            for i in res_visit:
+                if dp[path^(1<<cur_id)][i] + adj_matrix[i, cur_id] == dp[path][cur_id]:
+                    list_trace_id.append(i)
+                    path = path^(1<<cur_id)
+                    cur_id = i
+                    res_visit.remove(i)
+                    break
+        
+        final_path = [self.start]
+        for i in list_trace_id[::-1]:
+            final_path.append(self.list_point[i])
+        final_path.append(self.goal)
+        
+        final_path, total_distance = self._get_full_path_from_reaching_order(final_path)
+        return total_distance, final_path
+        
