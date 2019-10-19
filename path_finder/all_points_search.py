@@ -107,9 +107,12 @@ class AllPointSearch():
                 self._update_path_lookup(start_point, end_point, shortest_path)
 
                 ## update path_lookup[end][start]
-                reverse_shortest_path = shortest_path.copy()
                 if shortest_path != False:
-                    reverse_shortest_path.reverse()    
+                    reverse_shortest_path = shortest_path.copy()
+                    reverse_shortest_path.reverse()
+                else:
+                    print(f'cannot find path between {start_point} - {end_point}')
+                    continue
                 self._update_path_lookup(end_point, start_point, reverse_shortest_path)
                                 
                 self.visited[i, j] = 1
@@ -188,6 +191,9 @@ class AllPointSearch():
         except Exception as e:
             print(f'get path fail with error: {str(e)}')
             
+    '''
+        brute force - O(n!)
+    '''
     def search_shortest_with_all_possible_way(self, matrix):
         
         self._init_path_lookup(matrix)
@@ -238,6 +244,9 @@ class AllPointSearch():
         return arr;
     
 # ---------------------------------------------------------------------------------------
+    '''
+        DP O(2^N * N^2)
+    '''
     def find_shortest_hamilton_path(self, matrix):
         self._init_path_lookup(matrix) 
         
