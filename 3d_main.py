@@ -33,17 +33,21 @@ def visualize_3d(volume):
     # Do the plotting in a single call.
     fig = plt.figure()
     ax = fig.gca(projection='3d')
+    x, y, z = np.where(volume != 0)
     ax.scatter(x.ravel(),
             y.ravel(),
             z.ravel(),
-            c=volume.ravel())
+            c=volume[volume != 0].ravel())
     fig.show()
     plt.show()
 visualize_3d(matrix)
-
-path = BFS(start, goal, list_move).search(matrix)
+path_finder = BFS(start, goal, list_move)
+path = path_finder.search(matrix)
 if path:
     print(path)
     for p in path:
         matrix[tuple(p)] = 2
-        visualize_3d(matrix)
+    visualize_3d(matrix)
+
+    matrix[path_finder.closed[:, :, :, 0] != -1] = 3
+    visualize_3d(matrix) 
