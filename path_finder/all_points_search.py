@@ -9,7 +9,7 @@ import itertools
 REACHED_POINT_FLAG = 88
 
 class AllPointSearch():
-    def __init__(self, start, goal, list_point, use_heapq = True, algo_to_find_shortest_point = BFS, list_move=[(0, 1), (0, -1), (1, 0), (-1, 0)]):
+    def __init__(self, start, goal, list_point, search_algorithm = 'dp' , use_heapq = True, algo_to_find_shortest_point = BFS, list_move=[(0, 1), (0, -1), (1, 0), (-1, 0)]):
         '''
             - start: start point
             - goal: goal point
@@ -24,6 +24,8 @@ class AllPointSearch():
         self.list_point = list_point
         self.start = start
         self.goal = goal
+        self.search_algorithm = search_algorithm
+        
         self.list_move = list_move
         self.list_point = list_point
         self.algo_to_find_shortest_point = algo_to_find_shortest_point
@@ -132,6 +134,8 @@ class AllPointSearch():
         '''
         return heapq.heappop(self.path_lookup[start_point])
 
+    # ------------------------------------------------------------------------------------------
+    # ALGORITHM 1: GREEDY, TIME COMPLEXITY: O(N.logN)
     def search_always_choose_nearest_point(self, matrix):
         '''
             start searching: at each point, just choose the closest one
@@ -174,7 +178,8 @@ class AllPointSearch():
 
     
 
-# ----------------------- Dung ---------------------------------------------
+# --------------------------------------------------------------------
+# ALGORITHM 2: BRUTE FORCE, TIME COMPLEXITY: O(N!)
     def _get_full_path_from_reaching_order(self, reaching_order):
         final_dist = 0
         final_path = []
@@ -244,9 +249,7 @@ class AllPointSearch():
         return arr;
     
 # ---------------------------------------------------------------------------------------
-    '''
-        DP O(2^N * N^2)
-    '''
+# ALGORITHM 3: DYNAMIC PROGRAMMING, TIME COMPLEXITY: O(2^N * N^2)
     def find_shortest_hamilton_path(self, matrix):
         self._init_path_lookup(matrix) 
         
@@ -321,4 +324,18 @@ class AllPointSearch():
         
         final_path, total_distance = self._get_full_path_from_reaching_order(final_path)
         return total_distance, final_path
+# ---------------------------------------------------------------------------------------
+# CHOOSE ALGORITHM
+    def search(self, matrix):
+        if self.search_algorithm == 'DP':
+            return self.find_shortest_hamilton_path(matrix)
+        if self.search_algorithm == 'BruteForce':
+            return self.search_shortest_with_all_possible_way(matrix)
+        if self.search_algorithm == 'Greedy':
+            return self.search_always_choose_nearest_point(matrix)
+        print(f'wrong search type')
+        return None, None
+        
+        
+        
         

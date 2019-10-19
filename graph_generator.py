@@ -97,6 +97,61 @@ def read_input_file(fpath:str, verbose:bool=False, fill:bool=False):
     return generator.generate_graph(), (xStart, yStart), (xGoal, yGoal) 
 
 
+def read_multi_point_input(fpath:str, verbose:bool=False, fill:bool=False):
+    """ Read input file with TA Format
+    Input:
+        fpath: Path to input txt file
+        verbose: Print to screen to debug
+        fill: Should we fill the polygon
+    Output:
+        graph: (Numpy array) Matrix to represent graph value
+        start: (Tuple of int) Start point
+        goal: (Tuple of int) Goal point
+    """
+    f = open(fpath)
+    l = f.readline()
+    w, h = [int(x) for x in l.strip().split(',')]
+
+    if verbose:
+        print("Read from file....")
+        print(f"Width={w}, Height={h}")
+
+    generator = GraphGenerator((h, w), fill=fill)
+    
+    l = f.readline()
+    
+    list_coor = l.strip().split(',')
+    list_x = list_coor[1::2]
+    list_y = list_coor[::2]
+    list_x = [int(x) for x in list_x]
+    list_y = [int(y) for y in list_y]
+
+    xStart, yStart, xGoal, yGoal = list_x[0], list_y[0], list_x[1], list_y[1]
+    list_point = [(list_x[i], list_y[i]) for i in range(2, len(list_x))]
+    
+    
+    if verbose:
+        print(f"Start: ({xStart}, {yStart})")
+        print(f"Goal: ({xGoal}, {yGoal})")
+
+    num_polygon = int(f.readline().strip())
+
+    if verbose:
+        print(f"Found {num_polygon} Polygons")
+    for pInd in range(num_polygon):
+        l = f.readline()
+        point_list = [int(x) for x in l.strip().split(',')]
+        polygon = list(zip(point_list[::2], point_list[1::2]))
+
+        generator.add_polygon(polygon)
+
+    f.close()
+
+    if verbose:
+        print("Done load input")
+        generator.plot_graph()
+
+    return generator.generate_graph(), (xStart, yStart), (xGoal, yGoal), list_point
 
 if __name__ == '__main__':
     a, b, c = read_input_file('sample_input.txt', True)
