@@ -3,6 +3,9 @@ from path_finder import AStarSearch
 from path_finder import AllPointSearch
 from graph_generator import read_input_file
 from graph_generator import read_multi_point_input
+from PIL import Image
+import imageio
+import pylab as pl
 
 import time
 import argparse
@@ -32,20 +35,22 @@ def parse_args():
 def show_result(matrix, final_path, start, goal, list_point = None):
     if list_point:
         for point in list_point:
-            matrix[point] = 8
+            matrix[point] = -5
     
-    matrix[start] = 5
-    matrix[goal] = 5
+    matrix[start] = 4
+    matrix[goal] = 4
     fig = plt.figure()
     fig.canvas.draw()
     PATH_VALUE = 9
     for pos in final_path:
-        matrix[pos] = PATH_VALUE
-        plt.imshow(matrix, cmap="tab20c")
-        fig.canvas.draw()
-        plt.pause(0.5)
-        plt.show()
-   
+        if matrix[pos] == 0 or matrix[pos]==-5:
+            matrix[pos] = PATH_VALUE
+        else:
+            matrix[pos] += 1
+        pl.imshow(matrix)
+        pl.pause(1e-2)
+        pl.draw()
+
 if __name__ == '__main__':
     args = parse_args()
     input_path = args.input_file
@@ -79,7 +84,6 @@ if __name__ == '__main__':
         end_time = time.clock()
         if final_path:
             print("Found path")
-            print(final_path)
             print("Length path:", total_dist)
             print("Exec time:", end_time - start_time)
             show_result(matrix, final_path, start, goal, list_point = list_point)
@@ -96,9 +100,8 @@ if __name__ == '__main__':
         end_time = time.clock()
         if path:
             print("Found path")
-            print(path)
             print("Length path:", len(path))
             print("Exec time:", end_time - start_time)
-            show_result(matrix, final_path, start, goal)
+            show_result(matrix, path, start, goal)
         else:
             print("Not found path")
